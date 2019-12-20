@@ -1,46 +1,63 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import axios from 'axios';
+import Movie from './Movie';
+import "./App.css"
 
-Potato.propTypes = {
-  movieListName: PropTypes.string.isRequired,
-  movieImg: PropTypes.string.isRequired,
-  rating: PropTypes.number.isRequired
-};
 
-const movieLists = [
+
+class App extends React.Component {
   
-  {
-    id: 1,
-    name: "I know what you did in the last summer",
-    image: "https://www.remove.bg/assets/start_remove-79a4598a05a77ca999df1dcb434160994b6fde2c3e9101984fb1be0f16d0a74e.png",
-    rating: 5
-  },
-  
-   {
-    id:2,
-    name: "82 year-born, JiYoung Kim",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT-K-XJDBlXTJ_D1vZKOzLLzD0U7qJe84MqZjxqywl3zHl84jLr",
-    rating: 3.5
+  state = {
+    isLoading: true,
+    movies: []
+  };
+
+  getMovie = async ()  => {
+    const {data: {data: {movies}}} = await axios.get("https://yts-proxy.now.sh/list_movies.json?sort_by=rating");
+    this.setState({movies, isLoading:false});
+  } 
+
+  componentDidMount(){ //executed after render() function.
+    
+    //setTimeout(() => {this.setState({isLoading:false})}, 3000);
+    this.getMovie();
   }
-];
 
-function Potato ({movieListName, movieImg, rating}){
-  return (
-  <div>
-    <p>{movieListName}</p>
-    <p><img src = {movieImg} alt = {"images"} /></p>
-  <p>{rating}</p>
-  </div>
-  );
-}
-
-function App() {
-  return (
-  
-      <div className="App">
-        {movieLists.map(movieList => <Potato key = {movieList.id} movieListName = {movieList.name} movieImg = {movieList.image} rating = {movieList.rating} /> )}
+  render(){
+    const {isLoading, movies} = this.state;
+    return (
+      <div id = "potato">
+      <section className = "container">
+        {isLoading? (
+        <div className = "loader">
+          <span className = "loader_text">
+            Loading...
+          </span>
+        </div>
+        ): (
+        <div className = "movies">
+          {
+            movies.map(movie => {
+              return(
+                <Movie 
+      
+                key = {movie.id}
+                id = {movie.id} 
+                title = {movie.title} 
+                summary= {movie.summary} 
+                poster = {movie.medium_cover_image} 
+                year={movie.year}
+                genres = {movie.genres}
+                />
+              )
+            })
+          }
+        </div>
+        )
+        }   
+      </section>
       </div>
-  );
+    );
+  }
 }
-
 export default App;
